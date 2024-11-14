@@ -1,5 +1,7 @@
 # ROCKLLM
 
+![](./AI_ASSISTANT.png)
+
 ## Summary
 - Realtime AI assistant with Speech-to-text (STT) + LLM + text-to-Speech (TTS) capability.
 - Tested device: Orange Pi-5 4GB.
