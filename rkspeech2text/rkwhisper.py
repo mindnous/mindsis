@@ -7,6 +7,8 @@ from rknnlite.api import RKNNLite
 import argparse
 import ffmpeg
 import soundfile as sf
+import speech_recognition as sr
+import io
 
 
 class RKNNWhisperUtils:
@@ -131,6 +133,27 @@ class RKNNWhisperUtils:
 
 
 class RKNNWhisperInference:
+    # Function to convert audio to text
+    def transcribe_audio(self, audio, audio_btn):
+        start = time.time()
+        recognizer = sr.Recognizer()
+        print('audio: ', audio)
+        print('audio_btn: ', audio_btn)
+        with sr.AudioFile(audio) as source:
+            audio_data = recognizer.record(source)
+            try:
+                wav_bytes = audio_data.get_wav_data(convert_rate=16000)
+                wav_stream = io.BytesIO(wav_bytes)
+                audio_array, sampling_rate = sf.read(wav_stream)
+                audio_array = audio_array.astype(np.float32)
+                # Using Google Web Speech API for transcription
+                text = self.voice2text(audio_array)
+                print(f'[RKNNWhipser | time: {time.time() - start:.2f}] out-text: ', text)
+            except Exception as e:
+                print('[transcribe_audio] error: ', e)
+                return ""
+        return text
+
     @staticmethod
     def run_encoder(encoder_model, in_encoder):
         out_encoder = encoder_model.inference(inputs=[in_encoder])[0]
@@ -190,7 +213,7 @@ class RKNNWhisper(RKNNWhisperUtils, RKNNWhisperInference):
                  task='en',
                  encoder_model_path = './model/whisper_decoder_base_20s.rknn',
                  decoder_model_path = './model/whisper_decoder_base_20s.rknn'):
-        self.device_id = RKNNLite.NPU_CORE_0
+        self.device_id = RKNNLite.NPU_CORE_1
         
         # Set inputs
         if task == "en":

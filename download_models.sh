@@ -1,3 +1,3 @@
 cd model
-wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1OaWWHy_M1-1-4Gw1psNUB_ZaTiCnlWDe/view' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1OaWWHy_M1-1-4Gw1psNUB_ZaTiCnlWDe/view" -O whisper_decoder_base_20s.rknn && rm -rf /tmp/cookies.txt
-wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1yGmRWV_BZQG4CKEbq7UAj-6vopaF7PVb' -O whisper_encoder_base_20s.rknn
+python3 -m gdown "1OaWWHy_M1-1-4Gw1psNUB_ZaTiCnlWDe"
+python3 -m gdown "1yGmRWV_BZQG4CKEbq7UAj-6vopaF7PVb"

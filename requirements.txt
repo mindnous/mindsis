@@ -1,0 +1,5 @@
+gdown
+SpeechRecognition
+soundfile
+gradio==4.44.1
+ffmpeg-python

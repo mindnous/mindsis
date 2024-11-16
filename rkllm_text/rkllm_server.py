@@ -15,8 +15,8 @@ from rkllm_param import callback_type, callback, chatter
 
 
 # Set environment variables
-os.environ["GRADIO_SERVER_NAME"] = "0.0.0.0"
-os.environ["GRADIO_SERVER_PORT"] = "8080"
+# os.environ["GRADIO_SERVER_NAME"] = "0.0.0.0"
+# os.environ["GRADIO_SERVER_PORT"] = "8080"
 
 
 # Define the RKLLM class, which includes initialization, inference, and release operations for the RKLLM model in the dynamic library
@@ -25,6 +25,7 @@ class RKLLM(object):
     PROMPT_TEXT_POSTFIX = "<|im_end|><|im_start|>assistant"
 
     def __init__(self, model_path, lora_model_path = None, prompt_cache_path = None):
+        self.chatter = chatter
         rkllm_param = RKLLMParam()
         rkllm_param.model_path = bytes(model_path, 'utf-8')
 
@@ -111,6 +112,35 @@ class RKLLM(object):
 
     def release(self):
         self.rkllm_destroy(self.handle)
+        
+    # Retrieve the output from the RKLLM model and print it in a streaming manner
+    def get_RKLLM_output(self, history):
+        # print('history: ', len(history))
+        print('history: ', history)
+        if history is None:
+            return ''
+        # Link global variables to retrieve the output information from the callback function
+        self.chatter.global_text = []
+        self.chatter.global_state = -1
+
+        # Create a thread for model inference
+        model_thread = threading.Thread(target=self.run, args=(history[-1][0],))
+        model_thread.start()
+
+        # history[-1][1] represents the current dialogue
+        history[-1][1] = ""
+        
+        # Wait for the model to finish running and periodically check the inference thread of the model
+        model_thread_finished = False
+        while not model_thread_finished:
+            while len(self.chatter.global_text) > 0:
+                history[-1][1] += self.chatter.global_text.pop(0)
+                time.sleep(0.005)
+                # Gradio automatically pushes the result returned by the yield statement when calling the then method
+                yield history
+
+            model_thread.join(timeout=0.005)
+            model_thread_finished = not model_thread.is_alive()
 
 
 if __name__ == "__main__":

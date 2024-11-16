@@ -1,68 +1,101 @@
+import warnings
+warnings.filterwarnings(action='ignore')
 import gradio as gr
-from rkwhisper import RKNNWhisper, get_arguments
 import speech_recognition as sr
 import os
 import io
 import numpy as np
 import soundfile as sf
 import time
+import argparse
+import sys
+import resource
+from rkspeech2text.rkwhisper import initialize_speech2text_model
+from rkllm_text.rkllm_main import RKLLM, get_user_input
+from rkllm_text.rkllm_main import check_args_path, initialize_llm_model
+from utils import click_js, audio_action, check_btn_status
 
 
-args = get_arguments()
-whisperunner = RKNNWhisper(args.task, args.encoder_model_path, args.decoder_model_path)
-
-
-# Function to convert audio to text
-def transcribe_audio(audio):
-    start = time.time()
-    recognizer = sr.Recognizer()
-    with sr.AudioFile(audio) as source:
-        audio_data = recognizer.record(source)
-        try:
-            wav_bytes = audio_data.get_wav_data(convert_rate=16000)
-            wav_stream = io.BytesIO(wav_bytes)
-            audio_array, sampling_rate = sf.read(wav_stream)
-            audio_array = audio_array.astype(np.float32)
-            # Using Google Web Speech API for transcription
-            text = whisperunner.voice2text(audio_array)
-            print(f'[time: {time.time() - start:.2f}] out-text: ', text)
-        except Exception as e:
-            print('[transcribe_audio] error: ', e)
-            return ""
-    return text
-
-
-# def transcribe_audio(audio):
-#     audio_data = audio[1]
-#     print(audio, type(audio), audio_data.shape)
-#     print('hi')
-#     rate = audio[0]
-#     audio_array = np.float32((audio_data / 32768.))
-#     print('audio_array: ', audio_array.shape, audio_array.min(), audio_array.max(), audio_array.std())
-#     # return "hi"
-#     try:
-#         text = whisperunner.voice2text(audio_array)
-#         print('text: ', text)
-#     except sr.UnknownValueError:
-#         text = "Could not understand the audio."
-#     except sr.RequestError:
-#         text = "Request failed; please try again."
+# # Function to convert audio to text
+# def transcribe_audio(audio, whisperunner, audio_btn):
+#     print('audio_btn: ', audio_btn)
+#     return "hi"
+#     start = time.time()
+#     recognizer = sr.Recognizer()
+#     with sr.AudioFile(audio) as source:
+#         audio_data = recognizer.record(source)
+#         try:
+#             wav_bytes = audio_data.get_wav_data(convert_rate=16000)
+#             wav_stream = io.BytesIO(wav_bytes)
+#             audio_array, sampling_rate = sf.read(wav_stream)
+#             audio_array = audio_array.astype(np.float32)
+#             # Using Google Web Speech API for transcription
+#             text = whisperunner.voice2text(audio_array)
+#             print(f'[time: {time.time() - start:.2f}] out-text: ', text)
+#         except Exception as e:
+#             print('[transcribe_audio] error: ', e)
+#             return ""
 #     return text
 
-# Gradio interface setup
-iface = gr.Interface(
-    fn=transcribe_audio,
-    inputs=gr.Audio("microphone", type="filepath", label="Record Audio"),
-    # inputs=gr.Audio("microphone", type="numpy", label="Record Audio"),
-    outputs="text",
-    title="Audio to Text Transcription",
-    description="Record an audio clip and transcribe it to text.",
-    live=True
-)
 
-iface.launch()
-# iface.launch(server_name="0.0.0.0",
-#              server_port=8080,
-#              ssl_certfile='../cert.pem',
-#              ssl_keyfile='../key.pem',
-#              ssl_verify=False)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--rkllm_model_path', type=str, required=True, help='Absolute path of the converted RKLLM model on the Linux board;')
+    parser.add_argument('--target_platform', type=str, default='rk3588', required=False, help='Target platform: e.g., rk3588/rk3576;')
+    parser.add_argument('--prompt_cache_path', type=str, help='Absolute path of the prompt_cache file on the Linux board;')
+    args = parser.parse_known_args()[0]
+
+    check_args_path(args)
+    
+    # INIT Speech-to-text model
+    whisperunner = initialize_speech2text_model()
+
+    # INIT LLM model
+    rkllm_model = initialize_llm_model(args)
+    
+    # Create a Gradio interface
+    with gr.Blocks(title="Realtime AI Assistant") as iface:
+        gr.Markdown("<div align='center'><font size='70'> Chat with RKLLM </font></div>")
+        gr.Markdown("### Enter your question in the inputTextBox and press the Enter key to chat with the RKLLM model.")
+        # Create a Chatbot component to display conversation history
+        rkllmServer = gr.Chatbot(height=400)
+        # Create a Textbox component for user message input
+        msg = gr.Textbox(placeholder="Please input your question here...", label="inputTextBox")
+        # Create a Button component to clear the chat history.
+        audio_box = gr.Microphone(label="Audio", elem_id='audio', type='filepath')#, visible=False)
+        
+        with gr.Row():
+            audio_btn = gr.Button('Speak')
+            clear = gr.Button("Clear")
+
+        # Submit the user's input message to the get_user_input function and immediately update the chat history.
+        # Then call the get_RKLLM_output function to further update the chat history.
+        # The queue=False parameter ensures that these updates are not queued, but executed immediately.
+        msg.submit(get_user_input, [msg, rkllmServer], [msg, rkllmServer], queue=False).then(rkllm_model.get_RKLLM_output, inputs=rkllmServer, outputs=rkllmServer)
+
+        audio_btn.click(fn=audio_action, inputs=audio_btn, outputs=audio_btn).\
+                then(fn=lambda: None, js=click_js()).\
+                then(fn=check_btn_status, inputs=audio_btn).\
+                success(fn=whisperunner.transcribe_audio, inputs=(audio_box, audio_btn), outputs=msg).\
+                success(lambda :None, None, audio_box, queue=False).\
+                success(get_user_input, [msg, rkllmServer], [msg, rkllmServer]).\
+                success(rkllm_model.get_RKLLM_output, inputs=rkllmServer, outputs=rkllmServer)
+                
+
+        # When the clear button is clicked, perform a no-operation (lambda: None) and immediately clear the chat history.
+        clear.click(lambda: None, None, rkllmServer, queue=False)
+
+    # Enable the event queue system, and Start the Gradio application..
+    # iface.queue().launch(debug=True)
+    iface.queue().launch(server_name="0.0.0.0",
+                server_port=8080,
+                ssl_certfile='../cert.pem',
+                ssl_keyfile='../key.pem',
+                ssl_verify=False)
+
+    print("====================")
+    print("RKLLM model inference completed, releasing RKLLM model resources...")
+    rkllm_model.release()
+    print("====================")
+    
+    
