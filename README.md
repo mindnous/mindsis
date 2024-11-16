@@ -13,11 +13,16 @@
   - RKNN-Toolkit-lite: 2.3.0.
 
 ## How to Use
+
 - Download the whisper model (for Speech-to-Text / STT):
-```
-sh download_models.sh
-```
-- Run the demo
-```
-python3 rkllm_text/rkllm_main.py --rkllm_model_path qwen25_1.5b.rkllm --target_platform rk3588
-```
+  ```
+  sh download_models.sh
+  ```
+- Run the LLM only  
+  ```
+  python3 rkllm_text/rkllm_main.py --rkllm_model_path qwen25_1.5b.rkllm --target_platform rk3588
+  ```
+- Run end to end Realtime AI Assistant
+  ```
+  python3 demo.py --rkllm_model_path ./model/qwen25_1.5b.rkllm --target_platform rk3588
+  ```

@@ -66,6 +66,7 @@ class RKLLM(object):
         self.rkllm_destroy = rkllm_lib.rkllm_destroy
         self.rkllm_destroy.argtypes = [RKLLM_Handle_t]
         self.rkllm_destroy.restype = ctypes.c_int
+        self.history_answer = []
 
         self.lora_adapter_path = None
         self.lora_model_name = None
@@ -116,7 +117,7 @@ class RKLLM(object):
     # Retrieve the output from the RKLLM model and print it in a streaming manner
     def get_RKLLM_output(self, history):
         # print('history: ', len(history))
-        print('history: ', history)
+        print('history: ', len(history), history[-1])
         if history is None:
             return ''
         # Link global variables to retrieve the output information from the callback function
@@ -141,6 +142,7 @@ class RKLLM(object):
 
             model_thread.join(timeout=0.005)
             model_thread_finished = not model_thread.is_alive()
+        self.history_answer.append(history[-1][1])
 
 
 if __name__ == "__main__":

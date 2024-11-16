@@ -1,1 +1,4 @@
 .rknn
+.pyc
+__pycache__/
+

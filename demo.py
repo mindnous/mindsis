@@ -14,28 +14,7 @@ from rkspeech2text.rkwhisper import initialize_speech2text_model
 from rkllm_text.rkllm_main import RKLLM, get_user_input
 from rkllm_text.rkllm_main import check_args_path, initialize_llm_model
 from utils import click_js, audio_action, check_btn_status
-
-
-# # Function to convert audio to text
-# def transcribe_audio(audio, whisperunner, audio_btn):
-#     print('audio_btn: ', audio_btn)
-#     return "hi"
-#     start = time.time()
-#     recognizer = sr.Recognizer()
-#     with sr.AudioFile(audio) as source:
-#         audio_data = recognizer.record(source)
-#         try:
-#             wav_bytes = audio_data.get_wav_data(convert_rate=16000)
-#             wav_stream = io.BytesIO(wav_bytes)
-#             audio_array, sampling_rate = sf.read(wav_stream)
-#             audio_array = audio_array.astype(np.float32)
-#             # Using Google Web Speech API for transcription
-#             text = whisperunner.voice2text(audio_array)
-#             print(f'[time: {time.time() - start:.2f}] out-text: ', text)
-#         except Exception as e:
-#             print('[transcribe_audio] error: ', e)
-#             return ""
-#     return text
+from rktext2speech.rktts import text_to_speech, autoplay_audio
 
 
 if __name__ == "__main__":
@@ -46,6 +25,9 @@ if __name__ == "__main__":
     args = parser.parse_known_args()[0]
 
     check_args_path(args)
+    
+    # Set resource limit
+    resource.setrlimit(resource.RLIMIT_NOFILE, (102400, 102400))
     
     # INIT Speech-to-text model
     whisperunner = initialize_speech2text_model()
@@ -62,11 +44,13 @@ if __name__ == "__main__":
         # Create a Textbox component for user message input
         msg = gr.Textbox(placeholder="Please input your question here...", label="inputTextBox")
         # Create a Button component to clear the chat history.
-        audio_box = gr.Microphone(label="Audio", elem_id='audio', type='filepath')#, visible=False)
+        audio_box = gr.Microphone(label="Audio", elem_id='audio', type='filepath', visible=False)
         
         with gr.Row():
             audio_btn = gr.Button('Speak')
             clear = gr.Button("Clear")
+        audio_answer = gr.Audio(label="speaker", type="numpy", elem_id="speaker", autoplay=True, visible=False)
+        
 
         # Submit the user's input message to the get_user_input function and immediately update the chat history.
         # Then call the get_RKLLM_output function to further update the chat history.
@@ -79,8 +63,10 @@ if __name__ == "__main__":
                 success(fn=whisperunner.transcribe_audio, inputs=(audio_box, audio_btn), outputs=msg).\
                 success(lambda :None, None, audio_box, queue=False).\
                 success(get_user_input, [msg, rkllmServer], [msg, rkllmServer]).\
-                success(rkllm_model.get_RKLLM_output, inputs=rkllmServer, outputs=rkllmServer)
-                
+                success(rkllm_model.get_RKLLM_output, inputs=rkllmServer, outputs=rkllmServer).\
+                success(text_to_speech, inputs=rkllmServer, outputs=audio_answer).\
+                success(lambda : None, None, None, js=autoplay_audio)
+        
 
         # When the clear button is clicked, perform a no-operation (lambda: None) and immediately clear the chat history.
         clear.click(lambda: None, None, rkllmServer, queue=False)
@@ -97,5 +83,3 @@ if __name__ == "__main__":
     print("RKLLM model inference completed, releasing RKLLM model resources...")
     rkllm_model.release()
     print("====================")
-    
-    
