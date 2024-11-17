@@ -14,7 +14,7 @@ from rkspeech2text.rkwhisper import initialize_speech2text_model
 from rkllm_text.rkllm_main import RKLLM, get_user_input
 from rkllm_text.rkllm_main import check_args_path, initialize_llm_model
 from utils import click_js, audio_action, check_btn_status
-from rktext2speech.rktts import text_to_speech, autoplay_audio
+from rktext2speech.rktts import text_to_speech_gtts, text_to_speech_offline, autoplay_audio
 
 
 if __name__ == "__main__":
@@ -22,7 +22,11 @@ if __name__ == "__main__":
     parser.add_argument('--rkllm_model_path', type=str, required=True, help='Absolute path of the converted RKLLM model on the Linux board;')
     parser.add_argument('--target_platform', type=str, default='rk3588', required=False, help='Target platform: e.g., rk3588/rk3576;')
     parser.add_argument('--prompt_cache_path', type=str, help='Absolute path of the prompt_cache file on the Linux board;')
+    parser.add_argument('--disable_gtts', action="store_true", default=False, help='Whether to use gTTs (fast, but needs internet connection), or not (will use sherpa-onnx tts, slow but no internet connection required)')
     args = parser.parse_known_args()[0]
+    
+    text_to_speech = text_to_speech_offline if args.disable_gtts else text_to_speech_gtts
+    print('disable gTTs: ', args.disable_gtts)
 
     check_args_path(args)
     
