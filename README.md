@@ -1,28 +1,17 @@
-# ROCKLLM
+# MINDai-asSIStant
 
 ![](./AI_ASSISTANT.png)
 
 ## Summary
 - Realtime AI assistant with Speech-to-text (STT) + LLM + text-to-Speech (TTS) capability.
-- Tested device: Orange Pi-5 4GB.
+- Tested device: Orange Pi-5 4GB, Mac Mini M4.
 - Supported STT: Whisper-base.
-- supported LLM: Qwen2.5 1.5B (due to hardware limitation on my site).
-- Supported TTS: only need to install pyttsx3.
-- Framework versions:
-  - RKLLM: 0.9.8.
-  - RKNN-Toolkit-lite: 2.3.0.
 
 ## How to Use
 
-- Download the whisper model (for Speech-to-Text / STT):
-  ```
-  sh download_models.sh
-  ```
-- Run the LLM only  
-  ```
-  python3 rkllm_text/rkllm_main.py --rkllm_model_path qwen25_1.5b.rkllm --target_platform rk3588
-  ```
-- Run end to end Realtime AI Assistant
-  ```
-  python3 demo.py --rkllm_model_path ./model/qwen25_1.5b.rkllm --target_platform rk3588
-  ```
+- Use Speech to Text
+  * Go to ```speech2text``` folder.
+  * Run speech2text.py with model and audio folder path, example:
+    ```
+    python3 speech2text.py --encoder_model_path ../model/encoder_model_fp16.onnx --decoder_model_path ../model/decoder_model_int8.onnx --audio ../examples
+    ```

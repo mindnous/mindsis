@@ -8,6 +8,8 @@ import ffmpeg
 import soundfile as sf
 import speech_recognition as sr
 import io
+import pathlib
+FILEPATH = pathlib.Path(__file__).parent.absolute()
 
 # whisper onnx reference: https://huggingface.co/onnx-community/whisper-base
 
@@ -82,7 +84,7 @@ class Speech2TextUtils:
         x_mel[:, :real_length] = audio_array[:, :real_length]
         return x_mel
 
-    def get_mel_filters(self, filters_path =  "./mel_80_filters.txt"):
+    def get_mel_filters(self, filters_path =  f"{FILEPATH}/mel_80_filters.txt"):
         mels_data = np.loadtxt(filters_path, dtype=np.float32).reshape((80, 201))
         # return torch.from_numpy(mels_data)
         return mels_data
@@ -212,9 +214,6 @@ class Speech2Text(Speech2TextUtils, Speech2TextInference):
     SAMPLE_RATE = 16000
     N_FFT = 400
     HOP_LENGTH = 160
-    CHUNK_LENGTH = 20
-    N_SAMPLES = CHUNK_LENGTH * SAMPLE_RATE
-    MAX_LENGTH = CHUNK_LENGTH * 100
     N_MELS = 80
 
     def __init__(self, 
@@ -298,14 +297,14 @@ def initialize_speech2text_model(task: str='en',
                                  decoder_model_path: str='./model/whisper_decoder_base_20s.rknn'):
     # INIT Speech-to-text model
     print("=========init Speech-to-text....===========")
-    whisperunner = Speech2Text(task, encoder_model_path, decoder_model_path)
+    speech_runner = Speech2Text(task, encoder_model_path, decoder_model_path)
     print("Speech-to-text Model has been initialized successfully！")
     print("==============================")
-    return whisperunner
+    return speech_runner
 
 
 def get_arguments():
-    parser = argparse.ArgumentParser(description='Whisper Python Demo', add_help=True)
+    parser = argparse.ArgumentParser(description='Speech2Text Demo, example: python3 speech2text.py --encoder_model_path ../model/encoder_model_fp16.onnx --decoder_model_path ../model/decoder_model_int8.onnx --audio ../examples', add_help=True)
     # basic params
     parser.add_argument('--encoder_model_path', default='./model/whisper_encoder_base_20s.rknn', required=False, type=str, help='model path, could be .rknn or .onnx file')
     parser.add_argument('--decoder_model_path', default='./model/whisper_decoder_base_20s.rknn', required=False, type=str, help='model path, could be .rknn or .onnx file')
