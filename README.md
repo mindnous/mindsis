@@ -1,19 +1,32 @@
-# MINDnous-ai-asSIStant
+# [MINDSIS]
+
+> What is this? -> It is an AI Assistant created by mindnous.
 
 ![](./AI_ASSISTANT.png)
 
+## PROGRESS
+
+[ ] Voice Activity Detection (VAD).
+[x] Zero-shot Speech classification/identification.
+[ ] Large Language Model.
+[x] Speech to text.
+[x] Text to speech.
+
+
 ## Summary
 - Realtime AI assistant with Speech-to-text (STT) + LLM + text-to-Speech (TTS) capability.
-- Tested device: Orange Pi-5 4GB, Mac Mini M4.
-- Supported STT: Whisper-base.
+- Target device: Arm(RK-device, Mac, NVIDIA Jetson) and AMD64 devices.
+- Supported Speech-Classify: [3dspeaker-CN-EN-16K-CAM++](https://github.com/k2-fsa/sherpa-onnx/releases/tag/speaker-recongition-models).
+- Supported Speech-to-text: [Whisper-base](https://huggingface.co/onnx-community/whisper-base).
+- Supported Text-to-speech: any popular TTS on the community. Default: [vits-en-us-ryan-medium](https://huggingface.co/csukuangfj/vits-piper-en_US-ryan-medium).
 
 ## How to Use
 
 - Use Speech to Text
   * Go to ```speech2text``` folder.
-  * Run speech2text.py with model and audio folder path, example:
+  * Run stt.py with model and audio folder path, example:
     ```
-    python3 speech2text.py --encoder_model_path ../model/encoder_model_fp16.onnx --decoder_model_path ../model/decoder_model_int8.onnx --audio ../examples
+    python3 stt.py --encoder_model_path ../model/encoder_model_fp16.onnx --decoder_model_path ../model/decoder_model_int8.onnx --audio ../examples
     ```
 
 - Use Text to Speech

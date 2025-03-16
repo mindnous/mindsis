@@ -1,3 +1,4 @@
+# ref: https://k2-fsa.github.io/sherpa/onnx/tts/pretrained_models/vits.html
 import os
 import sys
 import argparse
