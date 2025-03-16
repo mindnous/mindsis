@@ -1,8 +1,10 @@
 gdown
 SpeechRecognition
 soundfile
-gradio==4.44.1
+# gradio==4.44.1
 ffmpeg-python
 onnxruntime
 onnx
 sherpa-onnx
+ffmpeg-python
+pyaudio

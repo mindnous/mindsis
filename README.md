@@ -1,17 +1,11 @@
 # [MINDSIS]
 
-> What is this? -> It is an AI Assistant created by mindnous.
+> What is this? -> It is an AI Assistant created by mindnous.\
+> What is MINDSIS? -> It is an abbrev. of **Mindnous AI Assistant**.
 
 ![](./AI_ASSISTANT.png)
 
 ---
-## PROGRESS
-
-- [ ] Voice Activity Detection (VAD).
-- [x] Zero-shot Speech classification/identification.
-- [ ] Large Language Model.
-- [x] Speech to text.
-- [x] Text to speech.
 
 
 ## Summary
@@ -22,6 +16,12 @@
 - Supported Text-to-speech: any popular TTS on the community. Default: [vits-en-us-ryan-medium](https://huggingface.co/csukuangfj/vits-piper-en_US-ryan-medium).
 
 ## How to Use
+
+- Install dependencies
+  ```
+  # be sure to install cmake, and portaudio beforehands
+  pip3 install -r requirements.txt
+  ```
 
 - Use Speech Identification
   * Go to ```speechclassify``` folder.
@@ -45,6 +45,15 @@
     ```
     python3 tts.py
     ```
+
+## PROGRESS
+
+- [ ] Voice Activity Detection (VAD).
+- [x] Zero-shot Speech classification/identification.
+- [ ] Large Language Model.
+- [x] Speech to text.
+- [x] Text to speech.
+
 ---
 
 # ACKNOWLEDGEMENT
