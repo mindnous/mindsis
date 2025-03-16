@@ -6,11 +6,11 @@
 
 ## PROGRESS
 
-[ ] Voice Activity Detection (VAD).
-[x] Zero-shot Speech classification/identification.
-[ ] Large Language Model.
-[x] Speech to text.
-[x] Text to speech.
+- [ ] Voice Activity Detection (VAD).
+- [x] Zero-shot Speech classification/identification.
+- [ ] Large Language Model.
+- [x] Speech to text.
+- [x] Text to speech.
 
 
 ## Summary
@@ -22,6 +22,14 @@
 
 ## How to Use
 
+- Use Speech Identification
+  * Go to ```speechclassify``` folder.
+  * edit text inside **__main__** function at the "audio_file" variable and fill it with your audio path.
+  * Run scls.py, example:
+    ```
+    python3 tts.py
+    ```
+
 - Use Speech to Text
   * Go to ```speech2text``` folder.
   * Run stt.py with model and audio folder path, example:
@@ -32,7 +40,7 @@
 - Use Text to Speech
   * Go to ```text2speech``` folder.
   * edit text inside **__main__** function at the bottom of the tts.py file,  then run bellow
-  * Run tts.py with model and audio folder path, example:
+  * Run tts.py, example:
     ```
     python3 tts.py
     ```

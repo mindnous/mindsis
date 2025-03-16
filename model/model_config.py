@@ -10,6 +10,7 @@ SCLS_THREADS = 1
 SCLS_providers=['CUDAExecutionProvider',
                 'CoreMLExecutionProvider',
                 'CPUExecutionProvider']
+# ref: https://k2-fsa.github.io/sherpa/onnx/speaker-identification/index.html
 SCLS_CLS_PATH = f'{FILEPATH}/3dspeaker_speech_campplus_sv_zh_en_16k-common_advanced.onnx'
 
 
