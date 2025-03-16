@@ -4,6 +4,7 @@
 
 ![](./AI_ASSISTANT.png)
 
+---
 ## PROGRESS
 
 - [ ] Voice Activity Detection (VAD).
@@ -44,3 +45,11 @@
     ```
     python3 tts.py
     ```
+---
+
+# ACKNOWLEDGEMENT
+
+- [sherpa-onnx](https://k2-fsa.github.io/sherpa/index.html)
+- [3d Speaker](https://github.com/modelscope/3D-Speaker.git)
+- [PINTO MODEL ZOO](https://k2-fsa.github.io/sherpa/index.html)
+- Open-source community and packages.
