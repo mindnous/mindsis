@@ -1,4 +1,4 @@
-# MINDai-asSIStant
+# MINDnous-ai-asSIStant
 
 ![](./AI_ASSISTANT.png)
 
@@ -14,4 +14,12 @@
   * Run speech2text.py with model and audio folder path, example:
     ```
     python3 speech2text.py --encoder_model_path ../model/encoder_model_fp16.onnx --decoder_model_path ../model/decoder_model_int8.onnx --audio ../examples
+    ```
+
+- Use Text to Speech
+  * Go to ```text2speech``` folder.
+  * edit text inside **__main__** function at the bottom of the tts.py file,  then run bellow
+  * Run tts.py with model and audio folder path, example:
+    ```
+    python3 tts.py
     ```
