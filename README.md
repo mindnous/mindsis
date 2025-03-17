@@ -56,11 +56,13 @@
 
 ## PROGRESS
 
-- [ ] Voice Activity Detection (VAD).
+- [x] Voice Activity Detection (VAD).
 - [x] Zero-shot Speech classification/identification.
 - [ ] Large Language Model.
 - [x] Speech to text.
 - [x] Text to speech.
+- [ ] Integrate all parts together.
+- [ ] Add external interactions for productivity purpose.
 
 ---
 
