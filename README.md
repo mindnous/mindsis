@@ -23,6 +23,14 @@
   pip3 install -r requirements.txt
   ```
 
+- Use Voice Activity Detector (VAD)
+  * Go to ```vad``` folder.
+  * edit "sf.read" path inside **__main__** function, and fill it with your audio path.
+  * Run vad.py, example:
+    ```
+    python3 vad.py
+    ```
+
 - Use Speech Identification
   * Go to ```speechclassify``` folder.
   * edit text inside **__main__** function at the "audio_file" variable and fill it with your audio path.
