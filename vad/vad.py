@@ -52,7 +52,6 @@ class VADUtils:
         return x, sr
 
     def _validate_audio(self, out_thresh_sum, cbatch):
-        print('go here', out_thresh_sum, cbatch, self.vad_state, self.vad_state_memory)
         if out_thresh_sum >= cbatch / 2:
             self.vad_state = True
             self.vad_state_memory = 0
@@ -61,7 +60,6 @@ class VADUtils:
         
         if (self.vad_state_memory >= self.sample_rates // 2) and self.vad_state:
             self.vad_state = False
-        print('go here2', self.vad_state, self.vad_state_memory)
 
 class VAD(VADModelUtils, VADUtils):
     def __init__(self, model_path, force_onnx_cpu=False, batch_size=1):

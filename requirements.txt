@@ -8,3 +8,15 @@ onnx
 sherpa-onnx
 ffmpeg-python
 pyaudio
+
+mlx
+mlx-lm
+mlx_textgen
+mlx-vlm
+
+openai
+litellm
+fastapi
+duckduckgo_search
+
+ollama
