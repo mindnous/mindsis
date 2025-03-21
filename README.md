@@ -154,7 +154,9 @@
 - [x] Large Language Model.
 - [x] Speech to text.
 - [x] Text to speech.
-- [ ] Integrate all parts together.
+- [x] Integrate all parts together.
+- [x] Validate the pipeline to work with text input.
+- [ ] Validate the pipeline to work with speech input.
 - [ ] Add external interactions for productivity purpose.
 
 ---
@@ -164,4 +166,5 @@
 - [sherpa-onnx](https://k2-fsa.github.io/sherpa/index.html)
 - [3d Speaker](https://github.com/modelscope/3D-Speaker.git)
 - [PINTO MODEL ZOO](https://k2-fsa.github.io/sherpa/index.html)
+- [SILERO_VAD](https://huggingface.co/onnx-community/silero-vad/)
 - Open-source community and packages.

@@ -92,8 +92,8 @@ class STTWrapperInference:
     def transcribe_audio(self, audio, audio_btn):
         start = time.time()
         recognizer = sr.Recognizer()
-        print('audio: ', audio)
-        print('audio_btn: ', audio_btn)
+        print('[transcribe_audio] audio: ', audio)
+        print('[transcribe_audio] audio_btn: ', audio_btn)
         with sr.AudioFile(audio) as source:
             audio_data = recognizer.record(source)
             try:
@@ -103,7 +103,7 @@ class STTWrapperInference:
                 audio_array = audio_array.astype(np.float32)
                 # Using Google Web Speech API for transcription
                 text = self.voice2text(audio_array)
-                print(f'[RKNNWhipser | time: {time.time() - start:.2f}] out-text: ', text)
+                print(f'[Speech2Text | time: {time.time() - start:.2f}] out-text: ', text)
             except Exception as e:
                 print('[transcribe_audio] error: ', e)
                 return ""
@@ -227,6 +227,7 @@ class STTWrapper(STTWrapperUtils, STTWrapperInference):
             self.decoder_model = None
 
     def voice2text(self, audio):
+        print('voice to text')
         if isinstance(audio, str):
             audio_array = cfg.load_audio(audio)
         else:

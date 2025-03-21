@@ -71,6 +71,16 @@ class TTSWrapper:
                                   speed=cfg.TTS_SPEED)
         return audio
 
+    def give_response_gradio(self, chat_history):
+        audio = self.__call__(chat_history[-1][1])
+        sf.write(
+                cfg.TTS_OUTPUTPATH,
+                audio.samples,
+                samplerate=audio.sample_rate,
+                subtype="PCM_16",
+            )
+        return cfg.TTS_OUTPUTPATH
+
 
 def main(tts, textref, loop=5):
     for _ in range(loop):

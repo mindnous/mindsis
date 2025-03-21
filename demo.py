@@ -50,7 +50,7 @@ if __name__ == "__main__":
     
     # Create a Gradio interface
     with gr.Blocks(title="MINDSIS") as iface:
-        gr.Markdown("<div align='center'><font size='70'> Chat with RKLLM </font></div>")
+        gr.Markdown("<div align='center'><font size='70'> mindsis Chat Studio </font></div>")
         gr.Markdown("### Enter your question in the Text-Box and hit Enter to chat with the RKLLM model.")
         # Create a Chatbot component to display conversation history
         chat_server = gr.Chatbot(height=400)
@@ -77,7 +77,7 @@ if __name__ == "__main__":
                 success(lambda :None, None, audio_box, queue=False).\
                 success(get_user_input, [msg, chat_server], [msg, chat_server]).\
                 success(llm_runner.give_response_gradio, inputs=chat_server, outputs=chat_server).\
-                success(tts_runner, inputs=chat_server, outputs=audio_answer).\
+                success(tts_runner.give_response_gradio, inputs=chat_server, outputs=audio_answer).\
                 success(lambda : None, None, None, js=autoplay_audio)
         
 
@@ -88,9 +88,9 @@ if __name__ == "__main__":
     # iface.queue().launch(debug=True)
     iface.queue().launch(server_name="0.0.0.0",
                 server_port=8080,
-                # ssl_certfile='../cert.pem',
-                # ssl_keyfile='../key.pem',
-                # ssl_verify=False
+                ssl_certfile='./cert.pem',
+                ssl_keyfile='./key.pem',
+                ssl_verify=False
                 )
 
     print("====================")
