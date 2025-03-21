@@ -24,28 +24,35 @@
   ```
 
 - Run Demo script.
-  ```
-  # MLX
-  python3 demo.py --llm_model "[PATH_TO_LLM]/Qwen2.5-14B-Instruct-4bit" \
-                  --llm_type "llm" \
-                  --stt_modelenc model/encoder_model_fp16.onnx \
-                  --stt_modeledec model/decoder_model_int8.onnx \
-                  --target_platform "mlx"
+  * <details><summary>Run demo.py.</summary>
 
-  # OPENAI / OLLAMA SERVER / LITELLM
-  python3 demo.py --llm_model "ollama/qwen2.5:latest" \
-                  --llm_type "llm" \
-                  --stt_modelenc model/encoder_model_fp16.onnx \
-                  --stt_modeledec model/decoder_model_int8.onnx \
-                  --target_platform "ollama"
+    ```
+    # MLX
+    python3 demo.py --llm_model "[PATH_TO_LLM]/Qwen2.5-14B-Instruct-4bit" \
+                    --llm_type "llm" \
+                    --stt_modelenc model/encoder_model_fp16.onnx \
+                    --stt_modeledec model/decoder_model_int8.onnx \
+                    --target_platform "mlx"
 
-  # OLLAMA-OFFLINE
-  python3 demo.py --llm_model "qwen2.5:latest" \
-                  --llm_type "llm" \
-                  --stt_modelenc model/encoder_model_fp16.onnx \
-                  --stt_modeledec model/decoder_model_int8.onnx \
-                  --target_platform "ollama_offline"
-  ```
+    # OPENAI / OLLAMA SERVER / LITELLM
+    python3 demo.py --llm_model "ollama/qwen2.5:latest" \
+                    --llm_type "llm" \
+                    --stt_modelenc model/encoder_model_fp16.onnx \
+                    --stt_modeledec model/decoder_model_int8.onnx \
+                    --target_platform "ollama"
+
+    # OLLAMA-OFFLINE
+    python3 demo.py --llm_model "qwen2.5:latest" \
+                    --llm_type "llm" \
+                    --stt_modelenc model/encoder_model_fp16.onnx \
+                    --stt_modeledec model/decoder_model_int8.onnx \
+                    --target_platform "ollama_offline"
+    ```
+
+    </details>
+  * Scan QR-Code to access the URL, and enjoy!
+
+<details> <summary>OLDER POST</summary>
 
 - Use Voice Activity Detector (VAD)
   * Go to ```vad``` folder.
@@ -146,6 +153,8 @@
     ```
     python3 tts.py
     ```
+</details>
+
 
 ## PROGRESS
 

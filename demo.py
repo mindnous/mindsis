@@ -18,6 +18,17 @@ from text2speech import TTSWrapper
 from utils import click_js, audio_action, check_btn_status, get_user_input, autoplay_audio
 FILEPATH = pathlib.Path(__file__).parent.absolute()
 
+
+def generate_ip_address_qrcode(port=8080):
+    import qrcode
+    import socket
+    hostname = socket.gethostname()
+    ipaddr = socket.gethostbyname(hostname)
+    url = f"https://{ipaddr}:{port}"
+    img = qrcode.make(url)
+    img.save(f'{FILEPATH}/demo_qr.jpg')
+
+
 # ref: python3 demo.py --llm_model "ollama/qwen2.5:latest" --llm_type "llm" --stt_modelenc model/encoder_model_fp16.onnx --stt_modeledec model/decoder_model_int8.onnx --target_platform "ollama"
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -28,8 +39,13 @@ if __name__ == "__main__":
     parser.add_argument('--stt_lang', type=str, default='en', help='Pick language, supported: [en]')
     parser.add_argument('--stt_modelenc', default=f'{FILEPATH}/model/encoder_model_fp16.onnx', required=False, type=str, help='model path, could be .rknn or .onnx file')
     parser.add_argument('--stt_modeldec', default=f'{FILEPATH}/model/decoder_model_int8.onnx', required=False, type=str, help='model path, could be .rknn or .onnx file')
-    
+    parser.add_argument('--gradio_port', default=8080, type=int, help='port to gradio')
+    parser.add_argument('--disable_qr_ipaddr', action="store_true", default=False)
     args = parser.parse_known_args()[0]
+
+    print('disable_qr_ipaddr: ', args.disable_qr_ipaddr)
+    if not args.disable_qr_ipaddr:
+        generate_ip_address_qrcode(args.gradio_port)
     
     # Set resource limit
     if args.target_platform == 'rkllm':
@@ -87,7 +103,7 @@ if __name__ == "__main__":
     # Enable the event queue system, and Start the Gradio application..
     # iface.queue().launch(debug=True)
     iface.queue().launch(server_name="0.0.0.0",
-                server_port=8080,
+                server_port=args.gradio_port,
                 ssl_certfile='./cert.pem',
                 ssl_keyfile='./key.pem',
                 ssl_verify=False
