@@ -23,6 +23,30 @@
   pip3 install -r requirements.txt
   ```
 
+- Run Demo script.
+  ```
+  # MLX
+  python3 demo.py --llm_model "[PATH_TO_LLM]/Qwen2.5-14B-Instruct-4bit" \
+                  --llm_type "llm" \
+                  --stt_modelenc model/encoder_model_fp16.onnx \
+                  --stt_modeledec model/decoder_model_int8.onnx \
+                  --target_platform "mlx"
+
+  # OPENAI / OLLAMA SERVER / LITELLM
+  python3 demo.py --llm_model "ollama/qwen2.5:latest" \
+                  --llm_type "llm" \
+                  --stt_modelenc model/encoder_model_fp16.onnx \
+                  --stt_modeledec model/decoder_model_int8.onnx \
+                  --target_platform "ollama"
+
+  # OLLAMA-OFFLINE
+  python3 demo.py --llm_model "qwen2.5:latest" \
+                  --llm_type "llm" \
+                  --stt_modelenc model/encoder_model_fp16.onnx \
+                  --stt_modeledec model/decoder_model_int8.onnx \
+                  --target_platform "ollama_offline"
+  ```
+
 - Use Voice Activity Detector (VAD)
   * Go to ```vad``` folder.
   * edit "sf.read" path inside **__main__** function, and fill it with your audio path.

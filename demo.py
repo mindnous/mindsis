@@ -10,41 +10,50 @@ import time
 import argparse
 import sys
 import resource
-from rkspeech2text.rkwhisper import initialize_speech2text_model
-from rkllm_text.rkllm_main import RKLLM, get_user_input
-from rkllm_text.rkllm_main import check_args_path, initialize_llm_model
-from utils import click_js, audio_action, check_btn_status
-from rktext2speech.rktts import text_to_speech_gtts, text_to_speech_offline, autoplay_audio
+import pathlib
+from speechclassify import SpeechClassify
+from speech2text import STTWrapper
+from llm import LLMWrapper
+from text2speech import TTSWrapper
+from utils import click_js, audio_action, check_btn_status, get_user_input, autoplay_audio
+FILEPATH = pathlib.Path(__file__).parent.absolute()
 
-
+# ref: python3 demo.py --llm_model "ollama/qwen2.5:latest" --llm_type "llm" --stt_modelenc model/encoder_model_fp16.onnx --stt_modeledec model/decoder_model_int8.onnx --target_platform "ollama"
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--rkllm_model_path', type=str, required=True, help='Absolute path of the converted RKLLM model on the Linux board;')
-    parser.add_argument('--target_platform', type=str, default='rk3588', required=False, help='Target platform: e.g., rk3588/rk3576;')
-    parser.add_argument('--prompt_cache_path', type=str, help='Absolute path of the prompt_cache file on the Linux board;')
-    parser.add_argument('--disable_gtts', action="store_true", default=False, help='Whether to use gTTs (fast, but needs internet connection), or not (will use sherpa-onnx tts, slow but no internet connection required)')
+    parser.add_argument('--llm_model', type=str, required=True, help='Modelname/modelpath of your LLM')
+    parser.add_argument('--llm_type', type=str, default="llm", help='Pick one: vlm | llm')
+    parser.add_argument('--llm_modelurl', type=str, default="http://localhost:11434", help='URL to the OPENAI-API-MODEL')
+    parser.add_argument('--target_platform', type=str, default='ollama', required=False, help='Target platform: e.g., ollama/openai/litellm/ollama_offline/mlc/rkllm/')
+    parser.add_argument('--stt_lang', type=str, default='en', help='Pick language, supported: [en]')
+    parser.add_argument('--stt_modelenc', default=f'{FILEPATH}/model/encoder_model_fp16.onnx', required=False, type=str, help='model path, could be .rknn or .onnx file')
+    parser.add_argument('--stt_modeldec', default=f'{FILEPATH}/model/decoder_model_int8.onnx', required=False, type=str, help='model path, could be .rknn or .onnx file')
+    
     args = parser.parse_known_args()[0]
     
-    text_to_speech = text_to_speech_offline if args.disable_gtts else text_to_speech_gtts
-    print('disable gTTs: ', args.disable_gtts)
-
-    check_args_path(args)
-    
     # Set resource limit
-    resource.setrlimit(resource.RLIMIT_NOFILE, (102400, 102400))
+    if args.target_platform == 'rkllm':
+        resource.setrlimit(resource.RLIMIT_NOFILE, (102400, 102400))
     
     # INIT Speech-to-text model
-    whisperunner = initialize_speech2text_model()
+    stt_runner = STTWrapper(args.stt_lang, args.stt_modelenc, args.stt_modeldec)
 
     # INIT LLM model
-    rkllm_model = initialize_llm_model(args)
+    model_info = dict(llm_type=args.llm_type,
+                      model_url=args.llm_modelurl)
+    llm_runner = LLMWrapper(args.llm_model,
+                            model_info=model_info,
+                            model_type=args.target_platform)
+
+    # INIT Text-to-speech model
+    tts_runner = TTSWrapper()
     
     # Create a Gradio interface
-    with gr.Blocks(title="Realtime AI Assistant") as iface:
+    with gr.Blocks(title="MINDSIS") as iface:
         gr.Markdown("<div align='center'><font size='70'> Chat with RKLLM </font></div>")
-        gr.Markdown("### Enter your question in the inputTextBox and press the Enter key to chat with the RKLLM model.")
+        gr.Markdown("### Enter your question in the Text-Box and hit Enter to chat with the RKLLM model.")
         # Create a Chatbot component to display conversation history
-        rkllmServer = gr.Chatbot(height=400)
+        chat_server = gr.Chatbot(height=400)
         # Create a Textbox component for user message input
         msg = gr.Textbox(placeholder="Please input your question here...", label="inputTextBox")
         # Create a Button component to clear the chat history.
@@ -59,31 +68,32 @@ if __name__ == "__main__":
         # Submit the user's input message to the get_user_input function and immediately update the chat history.
         # Then call the get_RKLLM_output function to further update the chat history.
         # The queue=False parameter ensures that these updates are not queued, but executed immediately.
-        msg.submit(get_user_input, [msg, rkllmServer], [msg, rkllmServer], queue=False).then(rkllm_model.get_RKLLM_output, inputs=rkllmServer, outputs=rkllmServer)
+        msg.submit(get_user_input, [msg, chat_server], [msg, chat_server], queue=False).then(llm_runner.give_response_gradio, inputs=chat_server, outputs=chat_server)
 
         audio_btn.click(fn=audio_action, inputs=audio_btn, outputs=audio_btn).\
                 then(fn=lambda: None, js=click_js()).\
                 then(fn=check_btn_status, inputs=audio_btn).\
-                success(fn=whisperunner.transcribe_audio, inputs=(audio_box, audio_btn), outputs=msg).\
+                success(fn=stt_runner.transcribe_audio, inputs=(audio_box, audio_btn), outputs=msg).\
                 success(lambda :None, None, audio_box, queue=False).\
-                success(get_user_input, [msg, rkllmServer], [msg, rkllmServer]).\
-                success(rkllm_model.get_RKLLM_output, inputs=rkllmServer, outputs=rkllmServer).\
-                success(text_to_speech, inputs=rkllmServer, outputs=audio_answer).\
+                success(get_user_input, [msg, chat_server], [msg, chat_server]).\
+                success(llm_runner.give_response_gradio, inputs=chat_server, outputs=chat_server).\
+                success(tts_runner, inputs=chat_server, outputs=audio_answer).\
                 success(lambda : None, None, None, js=autoplay_audio)
         
 
         # When the clear button is clicked, perform a no-operation (lambda: None) and immediately clear the chat history.
-        clear.click(lambda: None, None, rkllmServer, queue=False)
+        clear.click(lambda: None, None, chat_server, queue=False)
 
     # Enable the event queue system, and Start the Gradio application..
     # iface.queue().launch(debug=True)
     iface.queue().launch(server_name="0.0.0.0",
                 server_port=8080,
-                ssl_certfile='../cert.pem',
-                ssl_keyfile='../key.pem',
-                ssl_verify=False)
+                # ssl_certfile='../cert.pem',
+                # ssl_keyfile='../key.pem',
+                # ssl_verify=False
+                )
 
     print("====================")
     print("RKLLM model inference completed, releasing RKLLM model resources...")
-    rkllm_model.release()
+    llm_runner.release()
     print("====================")

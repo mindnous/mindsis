@@ -18,9 +18,10 @@ def image_to_base64(uploaded_file):
 
 
 class OllamaWrapper:
-    def __init__(self, modelname, use_stream=True):
+    def __init__(self, modelname, stream=False, stream_debug=True):
         self.modelname = modelname
-        self.use_stream = use_stream
+        self.stream = stream
+        self.stream_debug = stream_debug
         self.stream_message = []
 
     def prepare_message(self, prompt, images):
@@ -34,10 +35,13 @@ class OllamaWrapper:
         return messages
     
     def get_response(self, response):
-        if self.use_stream:
+        if self.stream:
+            print('use stream, get_response')
+            return response
+        elif self.stream_debug:
             self.stream_message = []
             for chunk in response:
-                print(chunk['message']['content'], end='', flush=True)
+                print('test: ', chunk['message']['content'], end='', flush=True)
                 self.stream_message.append(chunk['message']['content'])
             return ''.join(self.stream_message)
         else:
@@ -51,7 +55,7 @@ class OllamaWrapper:
         response = ollama.chat(
             model=self.modelname,
             messages=messages,
-            stream=self.use_stream
+            stream=self.stream_debug
         )
         
         # get response
@@ -60,7 +64,7 @@ class OllamaWrapper:
 if __name__ == "__main__":
     # modelname = "deepseek-r1:14b"
     modelname = "qwen2.5:latest"
-    owrapper = OllamaWrapper(modelname=modelname, use_stream=True)
+    owrapper = OllamaWrapper(modelname=modelname, stream_debug=True)
     prompt = "How to improve chinese skills? please give me a short answer"
     text = owrapper(prompt)
     print('=' * 50)

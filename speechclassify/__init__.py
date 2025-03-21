@@ -1,0 +1,1 @@
+from .scls import SpeechClassify

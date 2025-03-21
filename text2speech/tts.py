@@ -35,34 +35,47 @@ def get_args():
     return parser
 
 
-def main(textref, loop=5):
-    args = get_args()
-    print(args)
+class TTSWrapper:
+    def __init__(self):
+        args = get_args()
+        print(args)
 
-    tts_config = sherpa_onnx.OfflineTtsConfig(
-        model=sherpa_onnx.OfflineTtsModelConfig(
-            vits=sherpa_onnx.OfflineTtsVitsModelConfig(
-                model=args.vits_model,
-                lexicon=args.vits_lexicon,
-                data_dir=args.vits_data_dir,
-                dict_dir=args.vits_dict_dir,
-                tokens=args.vits_tokens,
+        tts_config = sherpa_onnx.OfflineTtsConfig(
+            model=sherpa_onnx.OfflineTtsModelConfig(
+                vits=sherpa_onnx.OfflineTtsVitsModelConfig(
+                    model=args.vits_model,
+                    lexicon=args.vits_lexicon,
+                    data_dir=args.vits_data_dir,
+                    dict_dir=args.vits_dict_dir,
+                    tokens=args.vits_tokens,
+                ),
+                provider=cfg.TTS_PROVIDER,
+                debug=False,
+                num_threads=cfg.TTS_THREADS,
             ),
-            provider=cfg.TTS_PROVIDER,
-            debug=False,
-            num_threads=cfg.TTS_THREADS,
-        ),
-        rule_fsts='',
-        max_num_sentences=cfg.TTS_MAX_NUM_SENTENCES,
-    )
-    if not tts_config.validate():
-        raise ValueError("Please check your config")
+            rule_fsts='',
+            max_num_sentences=cfg.TTS_MAX_NUM_SENTENCES,
+        )
+        if not tts_config.validate():
+            raise ValueError("Please check your config")
 
-    tts = sherpa_onnx.OfflineTts(tts_config)
+        tts = sherpa_onnx.OfflineTts(tts_config)
 
+        self.args = args
+        self.tts_config = tts_config
+        self.tts = tts
+
+    def __call__(self, textref):
+        audio = self.tts.generate(textref,
+                                  sid=cfg.TTS_SID,
+                                  speed=cfg.TTS_SPEED)
+        return audio
+
+
+def main(tts, textref, loop=5):
     for _ in range(loop):
         start = time.time()
-        audio = tts.generate(textref, sid=cfg.TTS_SID, speed=cfg.TTS_SPEED)
+        audio = tts(textref)
         end = time.time()
 
         if len(audio.samples) == 0:
@@ -90,4 +103,5 @@ if __name__ == "__main__":
     textref = """I am trying to my best here, can 
         somebody give me a good suggestion? thank 
         you xpeng to help massively with the tedious works."""
-    main(textref, loop=5)
+    ttswrapper = TTSWrapper()
+    main(ttswrapper, textref, loop=5)

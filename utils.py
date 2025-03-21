@@ -19,3 +19,16 @@ def check_btn_status(btn):
     print('-> check button return: ', btn)
     if btn != 'Speak': raise Exception('Recording...')
     return btn
+
+
+# Record the user's input prompt        
+def get_user_input(user_message, history):
+    history = history + [[user_message, None]]
+    return "", history
+
+
+autoplay_audio = """ async () => {{
+                    setTimeout(() => {{
+                        document.querySelector('#speaker audio').play();
+                    }}, {1000});
+                }} """

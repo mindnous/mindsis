@@ -40,25 +40,33 @@ class LiteLLMWrapper:
             messages[0]['images'] = imb64
         return messages
 
-    def __call__(self, prompt, images=None):
+    def __call__(self, prompt, images=None, stream=False):
         messages = self.prepare_messages(prompt, images)
         response = completion(
             model=self.modelname, 
             messages=messages, 
-            api_base=self.modelurl
+            api_base=self.modelurl,
+            stream=stream
         )
-        return response.choices[0].message.content
+        if stream:
+            return response
+        else:
+            return response.choices[0].message.content
+
 
 if __name__ == "__main__":
     modelname="ollama/qwen2.5:latest"
     modelurl="http://localhost:11434"
     litewrapper = LiteLLMWrapper(modelname, modelurl)
+    print('jalan broo')
 
     for i in range(10):
         start = time.time()
         prompt = "How to improve chinese skills? please give me a short answer"
-        response = litewrapper(prompt)
-        print(i, '| ', response.choices[0].message['content'])
-        print(f'time: {time.time()-start:.3f}')
-        print('=' * 50)
+        print('jalan broo')
+        resp = litewrapper(prompt)
+        # print('response: ', resp)
+        # print(i, '| ', resp.choices[0].message['content'])
+        # print(f'time: {time.time()-start:.3f}')
+        # print('=' * 50)
 

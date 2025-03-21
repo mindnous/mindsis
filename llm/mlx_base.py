@@ -3,36 +3,36 @@ import cv2
 
 
 class MLXWrapper:
-    def __init__(self, model_path, llm_type=['llm', 'vlm'], verbose=True):
+    def __init__(self, model_path, llm_type=['llm', 'vlm'], verbose=True, stream=False):
         self.llm_type = llm_type
         self.messages_template = [{"role": "user", "content": ""}]
         self.model_cfg = None
         self.generate = None
         self.processor = None
         self.verbose = verbose
+        self.stream = stream
+        self.max_token = 512
+        self.temperature = 0.2
         if self.llm_type == 'llm':
-            from mlx_lm import load as lload, generate as lgenerate
+            from mlx_lm import load as lload, generate as lgenerate, stream_generate
             self.model, self.processor = lload(model_path)
-            self.generate = lgenerate
+            self.generate = lgenerate if not self.stream else stream_generate
         else:
-            from mlx_vlm import load as vload, generate as vgenerate
+            from mlx_vlm import load as vload, generate as vgenerate, stream_generate
             from mlx_vlm.utils import load_config as vload_config
             from mlx_vlm.prompt_utils import apply_chat_template as vapply_chat_template
             self.model, self.processor = vload(model_path)
             self.model_cfg = vload_config(model_path)
-            self.generate = vgenerate
+            self.generate = vgenerate if not self.stream else stream_generate
             self.vapply_chat_template = vapply_chat_template
 
     def __call__(self, prompt, images=None, **kwds):
         messages = copy.deepcopy(self.messages_template)
-        self.processor.apply_chat_template(
-            messages, add_generation_prompt=True)
-        
+        self.processor.apply_chat_template(messages, add_generation_prompt=True)
         if self.llm_type == 'llm':
             return self.generate(self.model,
                                  self.processor,
-                                 prompt=prompt,
-                                 verbose=self.verbose)
+                                 prompt)
         else:
             if type(images) != list:
                 images = [images]
@@ -43,8 +43,7 @@ class MLXWrapper:
             return self.generate(self.model,
                                  self.processor,
                                  formatted_prompt,
-                                 images,
-                                 verbose=True)
+                                 images)
 
 
 if __name__ == "__main__":

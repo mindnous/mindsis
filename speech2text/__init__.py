@@ -1,1 +1,1 @@
-    
+from .stt import STTWrapper

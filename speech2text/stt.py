@@ -16,7 +16,7 @@ import model_config as cfg
 # whisper onnx reference: https://huggingface.co/onnx-community/whisper-base
 
 
-class Speech2TextUtils:
+class STTWrapperUtils:
     @staticmethod
     def get_char_index(c):
         if 'A' <= c <= 'Z':
@@ -87,7 +87,7 @@ class Speech2TextUtils:
         return x_mel
 
 
-class Speech2TextInference:
+class STTWrapperInference:
     # Function to convert audio to text
     def transcribe_audio(self, audio, audio_btn):
         start = time.time()
@@ -162,7 +162,7 @@ class Speech2TextInference:
         return result
 
 
-class Speech2Text(Speech2TextUtils, Speech2TextInference):
+class STTWrapper(STTWrapperUtils, STTWrapperInference):
     def __init__(self, 
                  task='en',
                  encoder_model_path = '../model/decoder_model_int8.onnx',
@@ -170,10 +170,10 @@ class Speech2Text(Speech2TextUtils, Speech2TextInference):
         
         # Set inputs
         if task == "en":
-            vocab_path = "vocab_en.txt"
+            vocab_path = f"{FILEPATH}/vocab_en.txt"
             self.task_code = 50259
         elif args.task == "zh":
-            vocab_path = "vocab_zh.txt"
+            vocab_path = f"{FILEPATH}/vocab_zh.txt"
             self.task_code = 50260
         else:
             raise NotImplementedError("\n\033[1;33mCurrently only English or Chinese recognition tasks are supported. Please specify --task as en or zh\033[0m")
@@ -238,19 +238,8 @@ class Speech2Text(Speech2TextUtils, Speech2TextInference):
         return result
 
 
-def initialize_speech2text_model(task: str='en',
-                                 encoder_model_path: str='./model/whisper_encoder_base_20s.rknn',
-                                 decoder_model_path: str='./model/whisper_decoder_base_20s.rknn'):
-    # INIT Speech-to-text model
-    print("=========init Speech-to-text....===========")
-    speech_runner = Speech2Text(task, encoder_model_path, decoder_model_path)
-    print("Speech-to-text Model has been initialized successfully！")
-    print("==============================")
-    return speech_runner
-
-
 def get_arguments():
-    parser = argparse.ArgumentParser(description='Speech2Text Demo, example: python3 speech2text.py --encoder_model_path ../model/encoder_model_fp16.onnx --decoder_model_path ../model/decoder_model_int8.onnx --audio ../examples', add_help=True)
+    parser = argparse.ArgumentParser(description='Speech2Text Demo, example: python3 stt.py --encoder_model_path ../model/encoder_model_fp16.onnx --decoder_model_path ../model/decoder_model_int8.onnx --audio ../examples', add_help=True)
     # basic params
     parser.add_argument('--encoder_model_path', default='./model/whisper_encoder_base_20s.rknn', required=False, type=str, help='model path, could be .rknn or .onnx file')
     parser.add_argument('--decoder_model_path', default='./model/whisper_decoder_base_20s.rknn', required=False, type=str, help='model path, could be .rknn or .onnx file')
@@ -263,7 +252,7 @@ def get_arguments():
 if __name__ == '__main__':
     print('running....')
     args = get_arguments()
-    whisperunner = Speech2Text(args.task, args.encoder_model_path, args.decoder_model_path)
+    whisperunner = STTWrapper(args.task, args.encoder_model_path, args.decoder_model_path)
     
     # Inference
     bpath = args.audio_path
