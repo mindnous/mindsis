@@ -12,7 +12,10 @@
 
 ## MINDSIS Pipeline
 
-![](./mindsis.mp4)
+<video autoplay loop playsinline>
+  <source src="./mindsis.mp4" type="video/mp4">
+</video>
+
 
 ## Next Version
 
