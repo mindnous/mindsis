@@ -10,11 +10,9 @@
 
 ---
 
-## MINDSIS Pipeline
+## Current Pipeline (Text and Image)
 
-<video autoplay loop playsinline>
-  <source src="./mindsis.mp4" type="video/mp4">
-</video>
+<video autoplay loop src="./mindsis.mp4" />
 
 
 ## Next Version
