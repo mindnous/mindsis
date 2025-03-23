@@ -12,13 +12,7 @@
 
 ## MINDSIS Pipeline
 
-<video 
-  autoplay 
-  loop 
-  playsinline
-  style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
-  <source src="./mindsis.mp4" type="video/mp4">
-</video>
+![](./mindsis.mp4)
 
 ## Next Version
 
