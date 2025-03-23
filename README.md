@@ -12,10 +12,12 @@
 
 ## Current Pipeline (Text and Image)
 
-<video autoplay loop src="./mindsis.mp4" />
+<video autoplay loop src="./mindsis.mp4">
+  <source src="./mindsis.mp4" type="video/mp4">
+</video>
 
 
-## Next Version
+## Next Pipeline
 
 ![](./AI_ASSISTANT.png)
 
