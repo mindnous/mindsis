@@ -15,7 +15,13 @@ from speechclassify import SpeechClassify
 from speech2text import STTWrapper
 from llm import LLMWrapper
 from text2speech import TTSWrapper
-from utils import click_js, audio_action, check_btn_status, get_user_input, autoplay_audio
+from utils import (click_js,
+                   audio_action,
+                   check_btn_status,
+                   get_user_input,
+                   autoplay_audio,
+                   upload_file,
+                   upload_file_to_chat)  # noqa
 FILEPATH = pathlib.Path(__file__).parent.absolute()
 
 
@@ -74,11 +80,15 @@ if __name__ == "__main__":
         msg = gr.Textbox(placeholder="Please input your question here...", label="inputTextBox")
         # Create a Button component to clear the chat history.
         audio_box = gr.Microphone(label="Audio", elem_id='audio', type='filepath', visible=False)
+        # file_uploaded = gr.File(visible=True)
         
         with gr.Row():
+            upload_button = gr.UploadButton("Upload", file_types=["image"], file_count="multiple", visible=True)
             audio_btn = gr.Button('Speak')
             clear = gr.Button("Clear")
         audio_answer = gr.Audio(label="speaker", type="numpy", elem_id="speaker", autoplay=True, visible=False)
+        
+        upload_button.upload(upload_file_to_chat, inputs=[upload_button, chat_server], outputs=chat_server)
         
 
         # Submit the user's input message to the get_user_input function and immediately update the chat history.
@@ -109,7 +119,4 @@ if __name__ == "__main__":
                 ssl_verify=False
                 )
 
-    print("====================")
-    print("RKLLM model inference completed, releasing RKLLM model resources...")
-    llm_runner.release()
     print("====================")

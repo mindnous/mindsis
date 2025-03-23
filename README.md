@@ -1,7 +1,26 @@
 # [MINDSIS]
 
-> What is this? -> It is an AI Assistant created by mindnous.\
-> What is MINDSIS? -> It is an abbrev. of **Mindnous AI Assistant**.
+> What does MINDSIS stand for? -> It is an abbrev. of **Mindnous AI Assistant**.
+
+## What is MINDSIS?
+- AI Assistant that could run on edge and cheap devices.
+  - Support Arm64(Mac M series, rockchip devices - ONGOING), and desktop/amd64.
+- Run on most popular frameworks (MLX - LLMLite - Ollama).
+- [ONGOING] 
+
+---
+
+## MINDSIS Pipeline
+
+<video 
+  autoplay 
+  loop 
+  playsinline
+  style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
+  <source src="./mindsis.mp4" type="video/mp4">
+</video>
+
+## Next Version
 
 ![](./AI_ASSISTANT.png)
 
@@ -24,7 +43,13 @@
   ```
 
 - Run Demo script.
-  * <details><summary>Run demo.py.</summary>
+  ```
+  python3 demo.py --llm_model "gemma3:12b" \
+                    --llm_type "vlm" \
+                    --target_platform "ollama_offline"
+  ```
+
+  * <details><summary>Other examples with demo.py.</summary>
 
     ```
     # MLX
@@ -158,15 +183,18 @@
 
 ## PROGRESS
 
-- [x] Voice Activity Detection (VAD).
-- [x] Zero-shot Speech classification/identification.
-- [x] Large Language Model.
-- [x] Speech to text.
-- [x] Text to speech.
-- [x] Integrate all parts together.
-- [x] Validate the pipeline to work with text input.
-- [ ] Validate the pipeline to work with speech input.
-- [ ] Add external interactions for productivity purpose.
+<details><summary>Complete Progress</summary>
+
+- [ONGOING] Add MLC-LLM framework.
+- [ONGOING] Add external interactions for productivity purpose.
+- [2025/03/23] NOVAD + Add image upload for VLM.
+- [2025/03/22] Integrate all pipeline on Gradio(NOVAD: not yet including VAD and Audio Classification).
+- [2025/03/21] Add Large/Visual Language Model framework (support MLX - Ollama - LLMLite).
+- [2025/03/19] Add Text to speech.
+- [2025/03/18] Add Speech to text.
+- [2025/03/17] Add Zero-shot Speech classification/identification.
+- [2025/03/17] Add Voice Activity Detection (VAD).
+</details>
 
 ---
 

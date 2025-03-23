@@ -3,6 +3,10 @@ import os
 import sys
 import pathlib
 import time
+import io
+import base64
+import numpy as np
+from PIL import Image
 FILEPATH = pathlib.Path(__file__).parent.absolute()
 sys.path.append(f'{FILEPATH}/')
 
@@ -22,6 +26,7 @@ class LLMWrapper:
         self.model_type = model_type
         self.model = None
         self.stream = stream
+        self.upload_image_tag = 'uploaded images: '
         print('[LLMWrapper] self.stream: ', self.stream)
 
         if self.model_type == SUPPORTED_MODEL_TYPE['macos']:
@@ -60,7 +65,23 @@ class LLMWrapper:
         return response
     
     def give_response_gradio(self, chat_history):
-        response = self.__call__(messages=chat_history[-1][0])
+        if len(chat_history) >= 2:
+            if self.upload_image_tag in chat_history[-2][0]:
+                len_image = int(chat_history[-2][0].split(self.upload_image_tag)[-1])
+                images = []
+                for i in range(-2-len_image, -2, 1):
+                    im_ = chat_history[i][0]
+                    im_b64 = im_.split('data:image/png;base64,')[1][:-1]
+                    img_data = base64.b64decode(im_b64)
+                    im_bytes = Image.open(io.BytesIO(img_data))
+                    im_np = np.array(im_bytes)
+                    images.append(im_np)
+                response = self.__call__(messages=chat_history[-1][0],
+                                        images=images)
+            else:
+                response = self.__call__(messages=chat_history[-1][0])
+        else:
+            response = self.__call__(messages=chat_history[-1][0])
         chat_history[-1][1] = ''
         print('[give_response_gradio] response: ',response)
 
@@ -103,7 +124,7 @@ if __name__ == "__main__":
     # model_info={'llm_type': 'vlm'}
     # llmwrap = LLMWrapper(model_path, model_info=model_info, model_type='mlx', stream=False)
     # for _ in range(5):
-    #     response = llmwrap(messages=prompt, image_paths=[image])
+    #     response = llmwrap(messages=prompt, images=[image])
     #     print(_, '=' * 50, '\nresponse: ', response)
     # ###
 
